@@ -1,5 +1,5 @@
 package knn_ir;
-
+ 
 public class Test_object {
 	public String label;
 	public String title;

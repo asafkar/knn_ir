@@ -1,7 +1,7 @@
 package knn_ir;
 
 import java.util.List; 
-
+ 
 public class Result_object {
 	public String doc_id;
 	public String truth;

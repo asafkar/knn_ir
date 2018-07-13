@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.queryparser.classic.ParseException;
-
+ 
 public class main {
   
 	public static List<Test_object> test_object_list = new ArrayList<Test_object>();
