@@ -50,7 +50,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import com.opencsv.CSVReader;
  
- 
+
 
 
 public class Lucene_functions  { 
@@ -126,7 +126,7 @@ public class Lucene_functions  {
 
 	
 	
-	public static void KnnClassification(Test_object t_o, int k) throws IOException, ParseException {
+	public static void KnnClassification(Test_object t_o, int k_size) throws IOException, ParseException {
 		String current_query_str = t_o.content;
 		IndexReader reader = DirectoryReader.open(index_dir);
 		IndexSearcher searcher = new IndexSearcher(reader);
@@ -150,7 +150,7 @@ public class Lucene_functions  {
 //		String[] fields = { "content", "title" };
 //        Query currentQuery = new MultiFieldQueryParser( fields, analyzer).parse(QueryParser.escape(current_query_str));
          
-        TopScoreDocCollector inputCollector = TopScoreDocCollector.create(k);
+        TopScoreDocCollector inputCollector = TopScoreDocCollector.create(k_size);
         searcher.search(currentQuery, inputCollector);
         ScoreDoc[] hits = inputCollector.topDocs().scoreDocs;
 //        System.out.println("current query:" + current_query_str + "  Classification: ");
@@ -177,47 +177,34 @@ public class Lucene_functions  {
 //        	System.out.println("Label of the document:" + searcher.doc(hit.doc).getField("label").stringValue());
         	Integer hit_label = Integer.parseInt(searcher.doc(hit.doc).getField("label").stringValue());
         	labelCount.set(hit_label-1, labelCount.get(hit_label-1)+1);
-        	Integer k_size= Integer.parseInt(Config.k_size);
 //            temp_res.knn_list.add(hit_label);
-            switch (curr_index) {
-	            case 399:
-	            {
-	            	maxCount = Collections.max(labelCount);
-	            	classificationResult =  labelCount.indexOf(maxCount) + 1;
-	            	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_4_true = true;};
-	            }
-	            case 499: {
-	            	maxCount = Collections.max(labelCount);
-	            	classificationResult =  labelCount.indexOf(maxCount) + 1;
-	            	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_5_true = true;};	            	
-	            }
-	            case 599:
-	            {
-	            	maxCount = Collections.max(labelCount);
-	            	classificationResult =  labelCount.indexOf(maxCount) + 1;
-	            	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_6_true = true;};	            
-	            }
-	            case 699: {
-	            	maxCount = Collections.max(labelCount);
-	            	classificationResult =  labelCount.indexOf(maxCount) + 1;
-	            	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_7_true = true;};	            	
-	            }
-	            case 799:
-	            {
-	            	maxCount = Collections.max(labelCount);
-	            	classificationResult =  labelCount.indexOf(maxCount) + 1;
-	            	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_8_true = true;};	            
-	            }
-            }
-            if (curr_index==k_size) {
+            if (curr_index==k_size-1) {
             	maxCount = Collections.max(labelCount);
             	classificationResult =  labelCount.indexOf(maxCount) + 1;
             	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_k_true = true;};	            
             	temp_res.predicted_class_num= Integer.toString(classificationResult);
+            } else if (curr_index==15-1) { // if provided k is smaller than this, will remain 0...
+            	maxCount = Collections.max(labelCount);
+            	classificationResult =  labelCount.indexOf(maxCount) + 1;
+            	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_15_true = true;};        	
+            } else if (curr_index==10-1) {
+            	maxCount = Collections.max(labelCount);
+            	classificationResult =  labelCount.indexOf(maxCount) + 1;
+            	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_10_true = true;};               	
+            } else if (curr_index==5-1){
+            	maxCount = Collections.max(labelCount);
+            	classificationResult =  labelCount.indexOf(maxCount) + 1;
+            	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_5_true = true;};   
+            } else if (curr_index== 3-1) {
+            	maxCount = Collections.max(labelCount);
+            	classificationResult =  labelCount.indexOf(maxCount) + 1;
+            	if (classificationResult == Integer.parseInt(t_o.label)) {temp_res.res_3_true = true;};   
             }
             	 
             curr_index+=1;
+            
         }
+        main.result_object_list.add(temp_res);
 //        System.out.println(temp_res.res_4_true.toString()+temp_res.res_5_true.toString()+temp_res.res_6_true.toString()+
 //	        		temp_res.res_7_true.toString()+temp_res.res_8_true.toString());
         
