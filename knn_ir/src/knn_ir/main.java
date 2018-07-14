@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -58,6 +59,14 @@ public class main {
 	    
 	    String file_line;
 	    
+	    //vars for calculating recall, precision
+	    int[] tp_class = new int[14];
+	    int[] fp_class = new int[14];
+	    int[] fn_class = new int[14];
+	    int[] precision_vec = new int[14];
+	    int[] recall_vec = new int[14];
+	    int [] f1_vec = new int[14];
+	    
 		for (Result_object res : result_object_list) {
 			sum_k3+= (res.res_3_true) ? 1 : 0;
 			sum_k5+= (res.res_5_true) ? 1 : 0;
@@ -66,7 +75,34 @@ public class main {
 			sum_k+= (res.res_k_true) ? 1:0;
 			file_line = res.doc_id+","+res.predicted_class_num+","+res.truth;
 			out.println(file_line);
+			
+			//calculating recall and precision:
+			if (res.predicted_class_num==res.truth) {
+				tp_class[Integer.parseInt(res.truth)-1]+=1;
+			} else {
+				fp_class[Integer.parseInt(res.predicted_class_num)-1]+=1;
+				fn_class[Integer.parseInt(res.truth)-1]+=1;
+			}
 		}
+		
+		for (int ii = 0; ii < 13; ii=ii+1) {
+			precision_vec[ii]=tp_class[ii]/(tp_class[ii]+fp_class[ii]);
+			recall_vec[ii]=tp_class[ii]/(tp_class[ii]+fn_class[ii]);
+			f1_vec[ii]=(2*precision_vec[ii]*recall_vec[ii])/(precision_vec[ii]+recall_vec[ii]);
+		}
+		//calculating macro avg
+		int macro_avg=  Arrays.stream(f1_vec).sum()/14;
+		
+		//calculating micro avg (needs some pre calculations)
+		int total_tp =  Arrays.stream(tp_class).sum();
+		int total_fp = Arrays.stream(fp_class).sum();
+		int total_fn = Arrays.stream(fn_class).sum();
+		int total_precision = total_tp/(total_tp+total_fp);
+		int total_recall = total_tp/(total_tp+total_fn);
+		int micro_avg=  (2*total_precision*total_recall)/(total_precision+total_recall);
+		System.out.println("Macro average is "+ macro_avg);
+		System.out.println("Micro average is "+ micro_avg);
+		
 		System.out.println("Total number of correct hits with k=3 is "+sum_k3);
 		System.out.println("Total number of correct hits with k=5 is "+sum_k5);
 		System.out.println("Total number of correct hits with k=10 is "+sum_k10);
