@@ -26,7 +26,6 @@ public class main {
 		Lucene_functions.parse_test_set();
 		
 		int cnt=0;
-		
 		for (Test_object t_o : test_object_list) {
 			Lucene_functions.KnnClassification(t_o , Integer.parseInt(Config.k_size));	
 //			cnt+=1;
@@ -60,12 +59,12 @@ public class main {
 	    String file_line;
 	    
 	    //vars for calculating recall, precision
-	    int[] tp_class = new int[14];
-	    int[] fp_class = new int[14];
-	    int[] fn_class = new int[14];
-	    int[] precision_vec = new int[14];
-	    int[] recall_vec = new int[14];
-	    int [] f1_vec = new int[14];
+	    double[]  tp_class      = new double[14];
+	    double[]  fp_class      = new double[14];
+	    double[]  fn_class      = new double[14];
+	    double[]  precision_vec = new double[14];
+	    double[]  recall_vec    = new double[14];
+	    double[] f1_vec         = new double[14];
 	    
 		for (Result_object res : result_object_list) {
 			sum_k3+= (res.res_3_true) ? 1 : 0;
@@ -77,32 +76,39 @@ public class main {
 			out.println(file_line);
 			
 			//calculating recall and precision:
-			if (res.predicted_class_num==res.truth) {
+			if (Integer.parseInt(res.predicted_class_num)==Integer.parseInt(res.truth)) {
 				tp_class[Integer.parseInt(res.truth)-1]+=1;
 			} else {
 				fp_class[Integer.parseInt(res.predicted_class_num)-1]+=1;
 				fn_class[Integer.parseInt(res.truth)-1]+=1;
 			}
 		}
-		
-		for (int ii = 0; ii < 13; ii=ii+1) {
+		for (int ii = 0; ii < 14; ii=ii+1) {
 			precision_vec[ii]=tp_class[ii]/(tp_class[ii]+fp_class[ii]);
 			recall_vec[ii]=tp_class[ii]/(tp_class[ii]+fn_class[ii]);
-			f1_vec[ii]=(2*precision_vec[ii]*recall_vec[ii])/(precision_vec[ii]+recall_vec[ii]);
+//			System.out.println("Debug: precision="+precision_vec[ii]+" recall="+recall_vec[ii]+" ii="+ii);
+			f1_vec[ii]=(2*precision_vec[ii]*recall_vec[ii])/ (precision_vec[ii]+recall_vec[ii]); //max 1 incase ans is 0
 		}
 		//calculating macro avg
-		int macro_avg=  Arrays.stream(f1_vec).sum()/14;
+		double macro_avg=  Arrays.stream(f1_vec).sum()/14;
 		
 		//calculating micro avg (needs some pre calculations)
-		int total_tp =  Arrays.stream(tp_class).sum();
-		int total_fp = Arrays.stream(fp_class).sum();
-		int total_fn = Arrays.stream(fn_class).sum();
-		int total_precision = total_tp/(total_tp+total_fp);
-		int total_recall = total_tp/(total_tp+total_fn);
-		int micro_avg=  (2*total_precision*total_recall)/(total_precision+total_recall);
+		double total_tp =  Arrays.stream(tp_class).sum();
+		double total_fp = Arrays.stream(fp_class).sum();
+		double total_fn = Arrays.stream(fn_class).sum();
+		double total_precision = total_tp/(total_tp+total_fp);
+		double total_recall = total_tp/(total_tp+total_fn);
+		double micro_avg=  (2*total_precision*total_recall)/(total_precision+total_recall);
 		System.out.println("Macro average is "+ macro_avg);
 		System.out.println("Micro average is "+ micro_avg);
 		
+//		 System.out.println("tp_class       is "+  Arrays.toString(tp_class      ));
+//		 System.out.println("fp_class       is "+  Arrays.toString(fp_class      ));
+//		 System.out.println("fn_class       is "+  Arrays.toString(fn_class      ));
+//		 System.out.println("precision_vec  is "+  Arrays.toString(precision_vec ));
+//		 System.out.println("recall_vec     is "+  Arrays.toString(recall_vec    ));
+//		 System.out.println("f1_vec         is "+  Arrays.toString(f1_vec        ));
+
 		System.out.println("Total number of correct hits with k=3 is "+sum_k3);
 		System.out.println("Total number of correct hits with k=5 is "+sum_k5);
 		System.out.println("Total number of correct hits with k=10 is "+sum_k10);

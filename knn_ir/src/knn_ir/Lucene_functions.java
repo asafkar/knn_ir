@@ -147,13 +147,9 @@ public class Lucene_functions  {
 		searcher.setSimilarity(tfidfSimilarity);
 
     	Query currentQuery = new QueryParser("content", analyzer).parse(QueryParser.escape(current_query_str.replaceAll(main.query_filter_string, " ")));
-//		String[] fields = { "content", "title" };
-//        Query currentQuery = new MultiFieldQueryParser( fields, analyzer).parse(QueryParser.escape(current_query_str));
-         
         TopScoreDocCollector inputCollector = TopScoreDocCollector.create(k_size);
         searcher.search(currentQuery, inputCollector);
         ScoreDoc[] hits = inputCollector.topDocs().scoreDocs;
-//        System.out.println("current query:" + current_query_str + "  Classification: ");
         
         Integer[] arr = new Integer[14];
         ArrayList<Integer> labelCount = new ArrayList<>(Arrays.asList(arr));
@@ -173,11 +169,8 @@ public class Lucene_functions  {
         // on curr_index values, see what's the dominant number of labels, and decide according to it
         
         for (ScoreDoc hit : hits) { // run on k results 
-//        	System.out.println("Document:" + hit.doc);
-//        	System.out.println("Label of the document:" + searcher.doc(hit.doc).getField("label").stringValue());
         	Integer hit_label = Integer.parseInt(searcher.doc(hit.doc).getField("label").stringValue());
         	labelCount.set(hit_label-1, labelCount.get(hit_label-1)+1);
-//            temp_res.knn_list.add(hit_label);
             if (curr_index==k_size-1) {
             	maxCount = Collections.max(labelCount);
             	classificationResult =  labelCount.indexOf(maxCount) + 1;
@@ -204,18 +197,11 @@ public class Lucene_functions  {
             curr_index+=1;
             
         }
+        if ( temp_res.predicted_class_num==null || Integer.parseInt(temp_res.predicted_class_num)==0 || Integer.parseInt(temp_res.predicted_class_num) > 14) {
+        	temp_res.predicted_class_num="1"; // bug fix for undeterminted values
+        }
         main.result_object_list.add(temp_res);
-//        System.out.println(temp_res.res_4_true.toString()+temp_res.res_5_true.toString()+temp_res.res_6_true.toString()+
-//	        		temp_res.res_7_true.toString()+temp_res.res_8_true.toString());
         
-//        System.out.println("Label as classified using knn - " + classificationResult + " while the document truth is " + t_o.label);
-
-
-//        if (classificationResult == Integer.parseInt(t_o.label)) {
-//        	Main.CorrectClassificationCount++;
-//        } else {
-//        	Main.WrongClassificationCount++;
-//        }
 
 	}
 	
